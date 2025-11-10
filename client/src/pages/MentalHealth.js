@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -43,7 +43,7 @@ const MentalHealth = () => {
   const [input, setInput] = useState('');
   const [topic, setTopic] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [isAnonymous] = useState(true);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -51,11 +51,6 @@ const MentalHealth = () => {
   const [aiMessages, setAiMessages] = useState([]);
   const [aiInput, setAiInput] = useState('');
   const [loadingAI, setLoadingAI] = useState(false);
-
-  // Assessment state
-  const [selectedAssessment, setSelectedAssessment] = useState(null);
-  const [assessmentAnswers, setAssessmentAnswers] = useState({});
-  const [assessmentResult, setAssessmentResult] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -156,21 +151,6 @@ const MentalHealth = () => {
     'mh-assessments',
     async () => (await axios.get('/api/mental-health/assessments')).data
   );
-
-  const submitAssessmentMutation = useMutation(
-    ({ id, answers }) =>
-      axios.post(`/api/mental-health/assessments/${id}/submit`, { answers }),
-    {
-      onSuccess: (res) => {
-        setAssessmentResult(res.data);
-      }
-    }
-  );
-
-  const currentAssessment = useMemo(() => {
-    if (!selectedAssessment) return null;
-    return assessments?.find((a) => a.id === selectedAssessment) || null;
-  }, [assessments, selectedAssessment]);
 
   const { data: resources, isLoading: loadingResources } = useQuery(
     'mh-resources',
@@ -368,7 +348,6 @@ const MentalHealth = () => {
                   {assessments?.map((assessment) => (
                     <button
                       key={assessment.id}
-                      onClick={() => setSelectedAssessment(assessment.id)}
                       className="w-full text-left bg-white/5 hover:bg-white/10 border border-white/20 rounded-lg p-4 transition-colors"
                     >
                       <h4 className="font-semibold text-white">{assessment.title}</h4>

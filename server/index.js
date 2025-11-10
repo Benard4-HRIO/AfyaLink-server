@@ -3,8 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path'); // ✅ ADD THIS
 require('dotenv').config();
-const { testConnection } = require('./config/database'); // ✅ Import DB connection
+const { testConnection } = require('./config/database');
 
 const app = express();
 
@@ -33,6 +34,11 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ ADD THIS: Serve static files from React build
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+}
+
 // ------------------------------------
 // Routes
 // ------------------------------------
@@ -45,12 +51,19 @@ app.use('/api/emergency', require('./routes/emergency'));
 app.use('/api/admin', require('./routes/admin'));
 
 // ✅ New Chat Route (for mental health chatbot)
-app.use('/api/chat', require('./routes/chatRoutes')); // 👈 Added this line
+app.use('/api/chat', require('./routes/chatRoutes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// ✅ ADD THIS: Catch-all handler for React Router
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  });
+}
 
 // ------------------------------------
 // Error Handling
@@ -63,9 +76,9 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API route not found' });
 });
 
 // ------------------------------------
@@ -76,6 +89,7 @@ const startServer = async () => {
     await testConnection(); // ✅ Test + sync DB before starting
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
     console.error('❌ Server failed to start:', error);

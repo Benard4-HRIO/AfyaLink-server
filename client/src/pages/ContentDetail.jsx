@@ -1,4 +1,3 @@
-// src/pages/ContentDetail.jsx
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -32,8 +31,8 @@ const ContentDetail = () => {
         setError(null);
         console.log('🔄 Fetching content for ID:', id);
         
-        // Test if the ID looks like a database ID or mock ID
-        if (id && id.includes('-article-') || id.includes('-video-') || id.includes('-quiz-')) {
+        // ✅ Fixed: Added parentheses for operator clarity
+        if (id && (id.includes('-article-') || id.includes('-video-') || id.includes('-quiz-'))) {
           console.warn('⚠️ Using mock data ID - this will likely fail with real database');
         }
         
@@ -59,7 +58,6 @@ const ContentDetail = () => {
           data: err.response?.data
         });
         
-        // Better error messages based on the error type
         if (err.response?.status === 404) {
           setError(`Content not found. The ID "${id}" doesn't exist in the database.`);
         } else if (err.response?.status === 500) {
@@ -80,7 +78,6 @@ const ContentDetail = () => {
     fetchContent();
   }, [id]);
 
-  // Category icons
   const categoryIcons = {
     nutrition: FaUtensils,
     mental_wellness: FaBrain,
@@ -90,7 +87,6 @@ const ContentDetail = () => {
     emergency: FaShieldAlt
   };
 
-  // Transform YouTube URL to embed
   const getEmbedUrl = (url) => {
     if (!url) return '';
     if (url.includes('youtu.be/')) {
@@ -190,7 +186,6 @@ const ContentDetail = () => {
 
         {/* Content Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          {/* Category Badge */}
           <div className="flex items-center gap-2 mb-4">
             <div className="p-2 bg-teal-100 rounded-lg">
               <CategoryIcon className="text-teal-600" />
@@ -203,19 +198,16 @@ const ContentDetail = () => {
             </span>
           </div>
 
-          {/* Title */}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             {content.title || 'Untitled'}
           </h1>
 
-          {/* Description */}
           {content.description && (
             <p className="text-xl text-gray-600 mb-6">
               {content.description}
             </p>
           )}
 
-          {/* Video Content */}
           {content.type === 'video' && content.mediaUrl && (
             <div className="mb-8">
               <div className="aspect-video bg-black rounded-xl overflow-hidden">
@@ -233,7 +225,6 @@ const ContentDetail = () => {
             </div>
           )}
 
-          {/* Text Content */}
           {(content.type === 'article' || content.type === 'guide') && content.content && (
             <div className="prose max-w-none">
               <div className="text-gray-700 leading-relaxed whitespace-pre-line text-lg">
@@ -242,7 +233,6 @@ const ContentDetail = () => {
             </div>
           )}
 
-          {/* Quiz Content */}
           {content.type === 'quiz' && (
             <div className="text-center py-8">
               <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -254,8 +244,7 @@ const ContentDetail = () => {
               <p className="text-gray-600 mb-8 max-w-md mx-auto">
                 {content.language === 'sw' 
                   ? 'Jaribio hili lina maswali ya kukupima uelewa wako wa mada hii.'
-                  : 'This quiz contains questions to test your understanding of this topic.'
-                }
+                  : 'This quiz contains questions to test your understanding of this topic.'}
               </p>
               <button
                 onClick={() => navigate(`/education/quiz/${content.id}`)}
@@ -266,7 +255,6 @@ const ContentDetail = () => {
             </div>
           )}
 
-          {/* Metadata */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex flex-wrap gap-4 text-sm text-gray-500">
               <span>Language: {content.language?.toUpperCase() || 'EN'}</span>

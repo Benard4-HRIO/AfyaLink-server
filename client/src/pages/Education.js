@@ -7,7 +7,7 @@ import {
   FaGlobe, FaSearch, FaBook, FaVideo, FaQuestionCircle, 
   FaStar, FaBookmark, FaClock, FaEye, FaTh, FaList,
   FaPlay, FaUtensils, FaBrain, FaShower, FaShieldAlt,
-  FaHeart, FaShare, FaFilter, FaSort
+  FaHeart, FaShare, FaFilter
 } from 'react-icons/fa';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -21,7 +21,6 @@ const Education = () => {
   });
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('newest');
-  const [selectedContent, setSelectedContent] = useState(null);
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true, easing: 'ease-in-out' });
@@ -314,14 +313,11 @@ const Education = () => {
                     <option value="" className="text-gray-900">
                       {filters.language === 'sw' ? 'Kategoria zote' : 'All categories'}
                     </option>
-                    {categories?.map((c) => {
-                      const CatIcon = categoryIcons[c.id] || FaBook;
-                      return (
-                        <option key={c.id} value={c.id} className="text-gray-900 flex items-center gap-2">
-                          {c.name} ({c.contentCount})
-                        </option>
-                      );
-                    })}
+                    {categories?.map((c) => (
+                      <option key={c.id} value={c.id} className="text-gray-900">
+                        {c.name} ({c.contentCount})
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -661,4 +657,4 @@ Prevention is better than cure!`,
   return filtered;
 };
 
-export default Education;  
+export default Education;
