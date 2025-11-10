@@ -1,5 +1,3 @@
-// server/models/index.js
-
 const { Sequelize, DataTypes } = require('sequelize');
 require('dotenv').config();
 
@@ -14,9 +12,8 @@ const sequelize = new Sequelize(
 );
 
 // -------------------------------------
-// Import Models
+// Import Models (they already export defined models)
 // -------------------------------------
-// (keeps your existing model files unchanged)
 const HealthService = require('./HealthService');
 const Admin = require('./Admin');
 const User = require('./User');
@@ -26,24 +23,17 @@ const ChatMessage = require('./ChatMessage');
 // -------------------------------------
 // Define Associations
 // -------------------------------------
-// Guard against double-definition if this file is reloaded
-if (!User.associations || !User.associations.chatSessions) {
-  // 🧍 User ↔ ChatSession
-  User.hasMany(ChatSession, { foreignKey: 'userId', as: 'chatSessions' });
-  ChatSession.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-}
+// User ↔ ChatSession
+User.hasMany(ChatSession, { foreignKey: 'userId', as: 'chatSessions' });
+ChatSession.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-if (!User.associations || !User.associations.sentMessages) {
-  // 🧍 User ↔ ChatMessage
-  User.hasMany(ChatMessage, { foreignKey: 'senderId', as: 'sentMessages' });
-  ChatMessage.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
-}
+// User ↔ ChatMessage
+User.hasMany(ChatMessage, { foreignKey: 'senderId', as: 'sentMessages' });
+ChatMessage.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 
-if (!ChatSession.associations || !ChatSession.associations.sessionMessages) {
-  // 💬 ChatSession ↔ ChatMessage
-  ChatSession.hasMany(ChatMessage, { foreignKey: 'sessionId', as: 'sessionMessages' });
-  ChatMessage.belongsTo(ChatSession, { foreignKey: 'sessionId', as: 'chatSession' });
-}
+// ChatSession ↔ ChatMessage
+ChatSession.hasMany(ChatMessage, { foreignKey: 'sessionId', as: 'sessionMessages' });
+ChatMessage.belongsTo(ChatSession, { foreignKey: 'sessionId', as: 'chatSession' });
 
 // -------------------------------------
 // Test Connection & Sync Models
@@ -59,7 +49,7 @@ const testConnection = async () => {
 
 const syncModels = async () => {
   try {
-    await sequelize.sync({ alter: true }); // safe schema update in development
+    await sequelize.sync({ alter: true });
     console.log('✅ Models synchronized successfully.');
   } catch (error) {
     console.error('❌ Model synchronization failed:', error.message || error);
